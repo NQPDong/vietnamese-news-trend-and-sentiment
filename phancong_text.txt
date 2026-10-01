@@ -1,0 +1,95 @@
+1. BỐI CẢNH NGHIỆP VỤ & PHẠM VI NGHIÊN CỨU
+1.1. Bối cảnh nghiệp vụ
+Một bộ phận truyền thông / quan hệ công chúng (PR) hoặc cơ quan quản lý cần hệ thống dữ liệu lớn để tự động hóa:
+Theo dõi xu hướng chủ đề: Nhận diện các dòng thời sự, chủ đề đang bùng nổ trên báo điện tử Việt Nam trong vòng 24 giờ qua.
+Theo dõi cảm xúc theo từ khóa/thương hiệu: Với một thực thể (ví dụ: doanh nghiệp, thương hiệu, nhân vật công chúng), hệ thống phân tích xu hướng và tỷ lệ cảm xúc (Tích cực – Trung tính – Tiêu cực) biến động theo ngày/tuần.
+Cảnh báo đột biến truyền thông (Crisis Alert): Phát hiện dấu hiệu tăng vọt bất thường về tần suất xuất hiện hoặc tỷ lệ tin bài tiêu cực (dấu hiệu khủng hoảng truyền thông) và gửi cảnh báo trong vòng 15 phút.
+1.2. Phạm vi dữ liệu & Khu vực nghiên cứu
+Khu vực nghiên cứu: Các bài báo điện tử tiếng Việt và trang tin tức trực tuyến phổ biến hàng đầu tại Việt Nam: VnExpress, Dân Trí, Tuổi Trẻ, Thanh Niên, VietnamNet, Zing News...
+Khoảng thời gian nghiên cứu: Từ tháng 06/2021 đến tháng 06/2022 (12 tháng).
+Ý nghĩa thực tiễn của khung thời gian: Đây là giai đoạn lịch sử có mật độ thông tin xã hội biến động cực mạnh tại Việt Nam (Làn sóng dịch Covid-19 đợt 4 tại TP.HCM và các tỉnh phía Nam, giãn cách nghiêm ngặt theo Chỉ thị 16, chiến dịch tiêm chủng vaccine toàn quốc, giai đoạn mở cửa kinh tế thích ứng an toàn "bình thường mới", cùng những biến động lớn về giá xăng dầu và thị trường tài chính đầu năm 2022). Do đó, dữ liệu có rất nhiều "đột biến thực tế" (-score vượt ngưỡng) và độ biến thiên cảm xúc rõ rệt để kiểm chứng hệ thống.
+Nguồn dữ liệu tích hợp:
+Vietnamese Online News Dataset (Kaggle)
+News Dataset Vietnameses (Kaggle)
+Bộ dữ liệu chuẩn có nhãn để huấn luyện:
+Phân loại chuyên mục: VNTC (~33.000 bài viết, 10 chuyên mục).
+Phân loại cảm xúc: UIT-VSFC (16.000 câu) và VLSP Sentiment Analysis.
+Cơ chế Replay Real-time: Xây dựng script kafka_producer_replay.py phát lại các bài viết theo đúng mốc thời gian lịch sử (kèm hệ số nén thời gian: 1 ngày lịch sử = 30 giây chạy thực tế) để mô phỏng luồng streaming liên tục  phút cho Spark Structured Streaming.
+2. BẢNG PHÂN CÔNG VAI TRÒ NHÓM (THEO QUY ĐỊNH A.2)
+Cam kết của nhóm: Mỗi thành viên đảm nhận 1 vai trò chính và 1 vai trò phụ. Mọi thành viên đều có lịch sử Git commit đóng góp trong ít nhất 2 vai trò.
+STT
+Thành viên
+Vai trò chính
+Vai trò phụ
+Trách nhiệm chính trong đồ án
+1
+[Họ tên SV 1 - Trưởng nhóm]
+Lead Data Engineer
+Sub-DevOps
+- Thiết kế cấu trúc Lakehouse HDFS (bronze, silver, gold).- Xây dựng Kafka Producer Replay dữ liệu 06/2021–06/2022.- Viết Spark Streaming ghi bronze.bai_viet và MERGE vào silver.bai_viet.- Phối hợp cấu hình cụm Docker HDFS & Spark.
+2
+[Họ tên SV 2]
+Lead ML Engineer
+Sub-Data Engineer
+- Xây dựng module NLP tách từ tiếng Việt trên Spark bằng Pandas UDF (underthesea/pyvi), làm thực nghiệm Benchmark so sánh với UDF thường.- Cài đặt thuật toán khử trùng lặp 2 tầng (SHA-256 + SimHash 64-bit).- Huấn luyện Model Chuyên mục (VNTC), Cảm xúc, và mô hình đề tài LDA.- Viết job Spark tổng hợp điểm đột biến -score.
+3
+[Họ tên SV 3]
+Lead Web Developer
+Sub-ML Engineer
+- Xây dựng Backend FastAPI và Frontend Dashboard trực quan hóa (6 màn hình).- Tối ưu tốc độ phản hồi Web s (đọc qua Gold tables / cache).- Cài đặt thao tác ghi ngược từ Web vào Delta Lake (silver.phan_hoi_nhan).- Cùng SV2 gán nhãn thủ công 200 bài báo để đo lường và phân tích Domain Shift của mô hình cảm xúc.
+4
+[Họ tên SV 4]
+Lead DevOps / Orchestrator
+Sub-Web Developer
+- Thiết lập môi trường docker-compose.yml (HDFS, YARN, Spark 3.5, Kafka, Delta 3.1, Airflow 2.9).- Xây dựng toàn bộ 6 DAGs Airflow điều phối tự động.- Thực hiện kiểm chứng Delta Lake: MERGE, VERSION AS OF (Time travel), OPTIMIZE, và kịch bản DELETE + VACUUM (xóa theo yêu cầu pháp lý).- Viết API tích hợp kích hoạt Airflow từ Web.
+3. SƠ ĐỒ KIẾN TRÚC HỆ THỐNG DỰ KIẾN
+4. QUY CÁCH LƯU TRỮ HDFS & BẢNG DỮ LIỆU ĐẶC TẢ
+Toàn bộ hệ thống lưu trữ phân tán nằm trong thư mục gốc HDFS: hdfs:///lakehouse/bd05_tin_tuc/
+bronze/: Chứa bảng bronze.bai_viet (ghi nguyên trạng, append-only, phân vùng theo ngay).
+silver/:
+silver.bai_viet: Dữ liệu đã chuẩn hóa, loại HTML, khử trùng lặp 2 tầng (SHA-256 và SimHash).
+silver.bai_viet_da_gan_nhan: Đã gán nhãn chuyên mục, nhãn cảm xúc và phân cụm LDA.
+silver.tu_khoa_theo_doi: Bảng lưu từ khóa người dùng đăng ký theo dõi (ghi nhận từ Web).
+silver.phan_hoi_nhan: Bảng ghi nhận phản hồi sửa nhãn từ người dùng (ghi nhận từ Web).
+gold/:
+gold.xu_huong_theo_gio: Thống kê số bài, điểm cảm xúc trung bình, điểm đột biến -score theo từng giờ.
+gold.canh_bao_dot_bien: Danh sách các chủ đề vượt ngưỡng -score phục vụ cảnh báo.
+features/: Ma trận TF-IDF, CountVectorizer, Word2Vec phục vụ train model.
+models/: Lưu trữ artifact mô hình MLlib đã huấn luyện theo từng phiên bản.
+checkpoints/: Lưu offset và metadata phục vụ checkpoint cho Spark Structured Streaming.
+_quarantine/: Bản ghi hỏng định dạng, thiếu nội dung bị loại khỏi silver.
+5. KẾ HOẠCH TIẾN ĐỘ 8 TUẦN VÀ CÁC MỐC BẮT BUỘC
+Tuần
+Nội dung thực hiện chính
+Đầu ra nghiệm thu
+Trọng số
+Tuần 1
+Đăng ký đề tài, phân chia nhiệm vụ 4 thành viên, hoàn thành báo cáo sơ bộ & kiến trúc.
+File báo cáo tuần 1, sơ đồ Mermaid kiến trúc.
+5%
+Tuần 2
+Dựng cụm Docker (Hadoop, Spark, Delta, Kafka, Airflow); nạp dữ liệu Kaggle 06/2021–06/2022 vào bronze; tạo 7 thư mục HDFS.
+Kiểm tra hdfs dfs -ls -R; Notebook EDA phân tích dữ liệu 2021–2022.
+10%
+Tuần 4
+Xây dựng pipeline khử trùng lặp SimHash; viết Pandas UDF tách từ tiếng Việt; nạp dữ liệu Silver & Gold; chạy thành công DAG Airflow đầu tiên.
+DAG 1 Airflow chạy ổn định; bảng Gold có dữ liệu; minh chứng MERGE INTO.
+15%
+Tuần 6
+Hoàn thành huấn luyện các mô hình MLlib; thực hiện gán nhãn thủ công 200 bài báo để đo sụt giảm do Domain Shift; Web hiển thị bảng Gold và demo thành công tính năng ghi ngược.
+Bảng so sánh Macro-F1; Web phản hồi s; ghi nhận bản ghi vào silver.phan_hoi_nhan.
+20%
+Tuần 8
+Hoàn thiện toàn bộ 6 DAGs Airflow, đo đạc benchmark Pandas UDF vs Normal UDF; viết báo cáo hoàn chỉnh (15–20 trang), nhật ký AI_USAGE.md; Bảo vệ & Demo trực tiếp 15 phút.
+Mã nguồn đầy đủ, báo cáo kỹ thuật, video/kịch bản demo chạy trơn tru.
+50%
+6. DANH SÁCH CAM KẾT KỸ THUẬT & TRÁNH VI PHẠM ĐỀ CƯƠNG
+Cam kết về Spark:
+Không sử dụng .collect() hoặc .toPandas() trên các DataFrame chưa được lọc/tổng hợp dưới 10.000 dòng.
+Xây dựng bài kiểm thử thực nghiệm chứng minh Pandas UDF vượt trội về hiệu năng so với UDF thường khi tách từ tiếng Việt.
+Cam kết về Delta Lake:
+Chứng minh đầy đủ 4 thao tác: MERGE INTO, DESCRIBE HISTORY, truy vấn VERSION AS OF (Time-travel), và OPTIMIZE (đo lường số lượng file nhỏ trước/sau).
+Thực hiện kịch bản xóa bài báo theo yêu cầu pháp lý (DELETE FROM ... WHERE ... + VACUUM) chứng minh dữ liệu bị xóa triệt để khỏi HDFS.
+Cam kết về Tính trung thực & Đạo đức dữ liệu:
+Báo cáo cuối kỳ có mục riêng về Đạo đức dữ liệu: tuân thủ robots.txt, giới hạn tần suất request, không thu thập thông tin danh tính cá nhân người đọc.
+Ghi chép nhật ký minh bạch tại file docs/AI_USAGE.md: ghi rõ prompt sử dụng, thành phần mã nguồn do AI hỗ trợ và phần nhóm tự tùy biến theo quy định A.9.

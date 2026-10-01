@@ -1,0 +1,32 @@
+# Dữ liệu lớn (Big Data / Lakehouse) - TUYỆT ĐỐI KHÔNG ĐƯA LÊN GIT VÌ DUNG LƯỢNG LỚN
+data/
+*.parquet
+*.json
+*.csv
+*.tar.gz
+*.zip
+
+# Môi trường ảo Python
+.venv/
+venv/
+ENV/
+env/
+
+# Bytecode Python & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Tệp tạm của hệ điều hành & Microsoft Office
+~$*
+.DS_Store
+Thumbs.db
+
+# Cấu hình IDE cá nhân
+.vscode/
+.idea/
+
+# Nhật ký và tệp tạm
+*.log
+scratch/

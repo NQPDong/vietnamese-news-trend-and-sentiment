@@ -1,0 +1,6 @@
+ít nhất 3 node
+import dl có kích thước lớn(nếu nhỏ thì viết lại size) để chia thành các block
+TUẦN SAU: xây dung luồng dl. tuần TIẾP huấn luyện
+chia làm bn block, batchsize bn, định nghĩa ở đâu, đẩy lên thì nó chứa ở datanode nào
+
+flume agent 
