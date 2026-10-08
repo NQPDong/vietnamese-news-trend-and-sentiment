@@ -1,4 +1,7 @@
-from pyvi import ViTokenizer
+try:
+    from pyvi import ViTokenizer
+except ImportError:
+    ViTokenizer = None
 
 def tokenize_vietnamese(text: str) -> str:
     """
@@ -7,6 +10,8 @@ def tokenize_vietnamese(text: str) -> str:
     """
     if not text:
         return ""
+    if ViTokenizer is None:
+        return text
     try:
         return ViTokenizer.tokenize(text)
     except Exception:
