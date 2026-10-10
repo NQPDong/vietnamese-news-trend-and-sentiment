@@ -1,0 +1,10 @@
+Nghe sự kiện tử kafka
+them dòng dl mới vào 
+viết script sinh ra bộ dl, kafka bắt sk. đưa vào ht để sử lý hoặc lưu 
+
+b1: dl -> hdfs(datanode)
+b2: dl mới(viết script nhỏ tạo dl giả lập) -> kafka (lắng nghe) -> query(spark) -> dataset(phân tích, hiển thị, huấn luyện) -> Gui
+
+airflow điều phối trong suốt quá trình
+
+quan trọng nhất là phần bigdata, hiểu toàn bộ quy trình(ko quan trọng kq phân tích)
